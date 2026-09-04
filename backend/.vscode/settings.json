@@ -1,0 +1,38 @@
+{
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll.ruff": "always",
+            "source.organizeImports": "explicit",
+            "source.organizeImports.ruff": "always"
+        },
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll.ruff": "always",
+        "source.organizeImports.ruff": "always",
+        "source.sort.json": "always"
+    },
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "**/.ruff_cache": true,
+        "**/.venv": false // Keep visible to browse dependencies if needed
+    },
+    "python.analysis.autoFormatStrings": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoIndent": true,
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.fixAll": [
+        "source.addTypeAnnotation",
+        "source.unusedImports",
+        "source.convertImportFormat",
+        "source.convertImportStar"
+    ],
+    "python.analysis.inlayHints.callArgumentNames": "all",
+    "python.analysis.typeCheckingMode": "basic", // Options: "off", "basic", "strict"
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "python.languageServer": "None"
+}
