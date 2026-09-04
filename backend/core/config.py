@@ -45,6 +45,3 @@ class Config(BaseSettings):
 
 
 config: Config = Config()
-
-
-print(config.model_dump_json())
