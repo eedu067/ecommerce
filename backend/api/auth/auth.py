@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 
 from app.controllers import AuthController
-from app.models.auth import CreateUser
+from app.models.auth import CreateUser, LoginUser
 from core.dependencies.controller import get_auth_controller
 
 router = APIRouter()
@@ -17,3 +17,12 @@ async def register_user(
 
     new_user = await auth_controller.create_user(data)
     return {"message": "User registered successfully.", "user_id": new_user.id}
+
+
+@router.post("/login")
+async def login_user(
+    data: LoginUser,
+    auth_controller: Annotated[AuthController, Depends(get_auth_controller)],
+):
+    user = await auth_controller.login_user(data)
+    return {"message": "User logged in successfully.", "user_id": user.id}

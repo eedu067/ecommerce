@@ -6,8 +6,27 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
-from app.models.auth import CreateUser
+from app.models.auth import CreateUser, LoginUser
 from core.security.password import PasswordHasher
+
+"""
+    TODO: Return a JWT token upon successful login and registration. 
+    This will allow the user to authenticate subsequent requests using the token.
+
+    # TODO: The user should be able to log in with either their email or username.
+    Update the login schema to accept either email or username, 
+    and modify the login_user method to handle both cases.
+
+    # TODO: Implement a password reset functionality.
+    # TODO: Implement email verification upon registration.
+    # TODO: Implement rate limiting for login attempts to 
+        prevent brute force attacks.
+    # TODO: Implement a logout functionality that invalidates
+        the user's session or token.
+    # TODO: Implement a refresh token mechanism to allow users
+        to obtain a new access token without re-authenticating.
+
+"""
 
 
 class AuthController:
@@ -51,4 +70,18 @@ class AuthController:
         self.session.add(user)
         await self.session.commit()
         await self.session.refresh(user)
+        return user
+
+    async def login_user(self, data: LoginUser) -> User:
+        user = await self.get_by_email(data.email)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials."
+            )
+
+        if not PasswordHasher.verify_password(data.password, user.password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials."
+            )
+
         return user
