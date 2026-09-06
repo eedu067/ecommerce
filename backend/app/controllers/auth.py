@@ -1,11 +1,13 @@
 from uuid import UUID
 
+from fastapi import HTTPException, status
 from pydantic import EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
 from app.models.auth import CreateUser
+from core.security.password import PasswordHasher
 
 
 class AuthController:
@@ -31,6 +33,20 @@ class AuthController:
         return user
 
     async def create_user(self, data: CreateUser) -> User:
+
+        if await self.get_by_email(data.email):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="Email already exists."
+            )
+
+        if await self.get_by_username(data.username):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="Username already exists."
+            )
+
+        hashed_password = PasswordHasher.hash_password(data.password)
+        data.password = hashed_password
+
         user = User(**data.model_dump())
         self.session.add(user)
         await self.session.commit()
