@@ -6,7 +6,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
-from app.schemas.auth import CreateUser, LoginUser
+from app.schemas.auth import CreateUser, LoginResponse, LoginUser
+from app.schemas.token import TokenResponse
+from app.schemas.user import UserResponse
 from core.security.jwt import JWTManager
 from core.security.password import PasswordHasher
 
@@ -52,7 +54,7 @@ class AuthController:
         user = result.scalar_one_or_none()
         return user
 
-    async def create_user(self, data: CreateUser):
+    async def create_user(self, data: CreateUser) -> LoginResponse:
 
         if await self.get_by_email(data.email):
             raise HTTPException(
@@ -74,11 +76,10 @@ class AuthController:
 
         token = self.generate_jwt_token(user)
 
-        return {
-            "access_token": token,
-            "token_type": "bearer",
-            "user": user,
-        }
+        return LoginResponse(
+            token=TokenResponse(token=token),
+            user=UserResponse.model_validate(user),
+        )
 
     async def login_user(self, data: LoginUser):
         user = await self.get_by_email(data.email)
@@ -93,11 +94,11 @@ class AuthController:
             )
 
         token = self.generate_jwt_token(user)
-        return {
-            "access_token": token,
-            "token_type": "bearer",
-            "user": user,
-        }
+
+        return LoginResponse(
+            token=TokenResponse(token=token),
+            user=UserResponse.model_validate(user),
+        )
 
     def generate_jwt_token(self, user: User) -> str:
 
