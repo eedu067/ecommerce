@@ -17,6 +17,11 @@ class Config(BaseSettings):
     PORT: int = 8080
     HOST: str = "localhost"
 
+    # JWT
+    JWT_SECRET_KEY: str = "my_secret_key"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
+
     # Database
     POSTGRES_DB: str = "my_db"
     POSTGRES_USER: str = "my_user"
