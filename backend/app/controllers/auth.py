@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
 from app.schemas.auth import CreateUser, LoginUser
+from core.security.jwt import JWTManager
 from core.security.password import PasswordHasher
 
 """
@@ -51,7 +52,7 @@ class AuthController:
         user = result.scalar_one_or_none()
         return user
 
-    async def create_user(self, data: CreateUser) -> User:
+    async def create_user(self, data: CreateUser):
 
         if await self.get_by_email(data.email):
             raise HTTPException(
@@ -70,9 +71,16 @@ class AuthController:
         self.session.add(user)
         await self.session.commit()
         await self.session.refresh(user)
-        return user
 
-    async def login_user(self, data: LoginUser) -> User:
+        token = self.generate_jwt_token(user)
+
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": user,
+        }
+
+    async def login_user(self, data: LoginUser):
         user = await self.get_by_email(data.email)
         if not user:
             raise HTTPException(
@@ -84,4 +92,19 @@ class AuthController:
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials."
             )
 
-        return user
+        token = self.generate_jwt_token(user)
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": user,
+        }
+
+    def generate_jwt_token(self, user: User) -> str:
+
+        payload = {
+            "user_id": str(user.id),
+            "email": user.email,
+            "username": user.username,
+        }
+        token = JWTManager.encode(payload)
+        return token
