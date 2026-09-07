@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 
 from app.controllers import AuthController
-from app.models.auth import CreateUser, LoginUser
+from app.schemas.auth import CreateUser, LoginUser
 from core.dependencies.controller import get_auth_controller
 
 router = APIRouter()

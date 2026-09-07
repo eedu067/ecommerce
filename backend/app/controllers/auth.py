@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
-from app.models.auth import CreateUser, LoginUser
+from app.schemas.auth import CreateUser, LoginUser
 from core.security.password import PasswordHasher
 
 """
