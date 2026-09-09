@@ -11,5 +11,4 @@ async def get_current_user(
     request: Request,
     controller: Annotated[UserController, Depends(get_user_controller)],
 ) -> User:
-    # TODO: Fix the request
-    return await controller.get_by_id(request.state.user.id)
+    return await controller.get_by_id(request.user.id)
