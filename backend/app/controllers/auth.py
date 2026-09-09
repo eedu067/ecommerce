@@ -36,19 +36,19 @@ class AuthController:
     def __init__(self, session: AsyncSession) -> None:
         self.session: AsyncSession = session
 
-    async def get_by_email(self, email: EmailStr) -> User | None:
+    async def _get_by_email(self, email: EmailStr) -> User | None:
         stmt = select(User).where(User.email == email)
         result = await self.session.execute(stmt)
         user = result.scalar_one_or_none()
         return user
 
-    async def get_by_username(self, username: str) -> User | None:
+    async def _get_by_username(self, username: str) -> User | None:
         stmt = select(User).where(User.username == username)
         result = await self.session.execute(stmt)
         user = result.scalar_one_or_none()
         return user
 
-    async def get_by_id(self, user_id: UUID) -> User | None:
+    async def _get_by_id(self, user_id: UUID) -> User | None:
         stmt = select(User).where(User.id == user_id)
         result = await self.session.execute(stmt)
         user = result.scalar_one_or_none()
@@ -56,12 +56,12 @@ class AuthController:
 
     async def create_user(self, data: CreateUser) -> LoginResponse:
 
-        if await self.get_by_email(data.email):
+        if await self._get_by_email(data.email):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT, detail="Email already exists."
             )
 
-        if await self.get_by_username(data.username):
+        if await self._get_by_username(data.username):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT, detail="Username already exists."
             )
@@ -82,7 +82,7 @@ class AuthController:
         )
 
     async def login_user(self, data: LoginUser):
-        user = await self.get_by_email(data.email)
+        user = await self._get_by_email(data.email)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials."
