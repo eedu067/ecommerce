@@ -29,12 +29,33 @@ class Config(BaseSettings):
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: int = 5432
 
+    # Test Database
+    TEST_POSTGRES_DB: str = "my_test_db"
+    TEST_POSTGRES_USER: str = "my_test_user"
+    TEST_POSTGRES_PASSWORD: str = "my_test_password"
+    TEST_POSTGRES_HOST: str = "localhost"
+    TEST_POSTGRES_PORT: int = 5433
+
     @computed_field
     @property
     def DATABASE_URL(self) -> str:
         return str(
             PostgresDsn.build(
                 scheme="postgresql+asyncpg",
+                host=self.POSTGRES_HOST,
+                port=self.POSTGRES_PORT,
+                username=self.POSTGRES_USER,
+                password=self.POSTGRES_PASSWORD,
+                path=self.POSTGRES_DB,
+            )
+        )
+
+    @computed_field
+    @property
+    def TEST_DATABASE_URL(self) -> str:
+        return str(
+            PostgresDsn.build(
+                scheme="postgresql",
                 host=self.POSTGRES_HOST,
                 port=self.POSTGRES_PORT,
                 username=self.POSTGRES_USER,
