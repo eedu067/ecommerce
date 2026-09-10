@@ -1,6 +1,5 @@
 from uuid import UUID
 
-from fastapi import HTTPException, status
 from pydantic import EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,27 +8,9 @@ from app.models import User
 from app.schemas.auth import CreateUser, LoginResponse, LoginUser
 from app.schemas.token import TokenResponse
 from app.schemas.user import UserResponse
+from core.exceptions import ConflictException, UnauthorizedException
 from core.security.jwt import JWTManager
 from core.security.password import PasswordHasher
-
-"""
-    TODO: Return a JWT token upon successful login and registration. 
-    This will allow the user to authenticate subsequent requests using the token.
-
-    # TODO: The user should be able to log in with either their email or username.
-    Update the login schema to accept either email or username, 
-    and modify the login_user method to handle both cases.
-
-    # TODO: Implement a password reset functionality.
-    # TODO: Implement email verification upon registration.
-    # TODO: Implement rate limiting for login attempts to 
-        prevent brute force attacks.
-    # TODO: Implement a logout functionality that invalidates
-        the user's session or token.
-    # TODO: Implement a refresh token mechanism to allow users
-        to obtain a new access token without re-authenticating.
-
-"""
 
 
 class AuthController:
@@ -57,14 +38,10 @@ class AuthController:
     async def create_user(self, data: CreateUser) -> LoginResponse:
 
         if await self._get_by_email(data.email):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, detail="Email already exists."
-            )
+            raise ConflictException("Email already exists")
 
         if await self._get_by_username(data.username):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, detail="Username already exists."
-            )
+            raise ConflictException("Username already exists")
 
         hashed_password = PasswordHasher.hash_password(data.password)
         data.password = hashed_password
@@ -83,15 +60,12 @@ class AuthController:
 
     async def login_user(self, data: LoginUser):
         user = await self._get_by_email(data.email)
+
         if not user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials."
-            )
+            raise UnauthorizedException("Invalid credentials")
 
         if not PasswordHasher.verify_password(data.password, user.password):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials."
-            )
+            raise UnauthorizedException("Invalid credentials")
 
         token = self.generate_jwt_token(user)
 
