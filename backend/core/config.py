@@ -55,7 +55,7 @@ class Config(BaseSettings):
     def TEST_DATABASE_URL(self) -> str:
         return str(
             PostgresDsn.build(
-                scheme="postgresql",
+                scheme="postgresql+asyncpg",
                 host=self.POSTGRES_HOST,
                 port=self.POSTGRES_PORT,
                 username=self.POSTGRES_USER,

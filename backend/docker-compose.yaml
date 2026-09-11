@@ -5,7 +5,7 @@ services:
     env_file:
       - .env
     ports:
-      - "5432:${POSTGRES_PORT}"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - pg-data:/var/lib/postgresql/ecommerce/data
 
@@ -15,7 +15,7 @@ services:
     env_file:
       - .env
     ports:
-      - "5432:${POSTGRES_PORT}"
+      - "${TEST_POSTGRES_PORT}:5432"
     volumes:
       - pg-data-test:/var/lib/postgresql/ecommerce-test/data
 

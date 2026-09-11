@@ -17,7 +17,9 @@ def app() -> Generator[FastAPI, Any, None]:
 
 
 @pytest_asyncio.fixture(scope="function")
-async def client(app: FastAPI, db_session: AsyncSession) -> AsyncGenerator[AsyncClient]:
+async def client(
+    app: FastAPI, db_session: AsyncSession
+) -> AsyncGenerator[AsyncClient, None]:
     async def _get_session():
         return db_session
 
